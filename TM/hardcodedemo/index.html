@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Management</title>
+    <style>
+        /* Add CSS for styling the dropdown rows */
+        .subtask-row {
+            display: none;
+        }
+        .has-subtasks::after {
+            content: "▼"; /* Add a down arrow symbol */
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<table id="taskTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Task Name</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Table rows will be added dynamically here -->
+    </tbody>
+</table>
+<script>
+    const tasks = [
+        {
+            id: 1,
+            taskName: 'Parent Task 1',
+            startDate: '2023-09-01',
+            endDate: '2023-09-10',
+            status: 'In Progress',
+            subtasks: [
+                {
+                    // Subtask ID will be calculated automatically
+                    taskName: 'Subtask 1.1',
+                    startDate: '2023-09-02',
+                    endDate: '2023-09-05',
+                    status: 'Completed',
+                },
+                {
+                    // Subtask ID will be calculated automatically
+                    taskName: 'Subtask 1.2',
+                    startDate: '2023-09-06',
+                    endDate: '2023-09-10',
+                    status: 'In Progress',
+                },
+            ],
+        },
+        {
+            id: 2,
+            taskName: 'Parent Task 2',
+            startDate: '2023-09-11',
+            endDate: '2023-09-20',
+            status: 'In Progress',
+            subtasks: [
+                {
+                    // Subtask ID will be calculated automatically
+                    taskName: 'Subtask 2.1',
+                    startDate: '2023-09-12',
+                    endDate: '2023-09-15',
+                    status: 'In Progress',
+                },
+                {
+                    // Subtask ID will be calculated automatically
+                    taskName: 'Subtask 2.2',
+                    startDate: '2023-09-16',
+                    endDate: '2023-09-20',
+                    status: 'Pending',
+                },
+            ],
+        },
+        {
+            id: 3,
+            taskName: 'Parent Task 3',
+            startDate: '2023-09-21',
+            endDate: '2023-09-30',
+            status: 'Pending',
+            subtasks: [],
+        },
+    ];
+
+    // Function to generate a unique subtask ID
+    function generateSubtaskID(parentID, index) {
+        return `${parentID}-${index}`;
+    }
+
+    // Function to populate the table with tasks and subtasks
+    function populateTable(tasks) {
+        const tableBody = document.querySelector('#taskTable tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        tasks.forEach(task => {
+            const parentRow = document.createElement('tr');
+            parentRow.innerHTML = `
+                    <td>${task.id}</td>
+                    <td class="parent-task ${task.subtasks.length > 0 ? 'has-subtasks' : ''}">${task.taskName}</td>
+                    <td>${task.startDate}</td>
+                    <td>${task.endDate}</td>
+                    <td>${task.status}</td>
+                    <td><button class="addSubTask">Add Sub Task</button></td>
+                    <td><button class="editTask">Edit</button></td>
+                    <td><button class="deleteTask">Delete</button></td>\`
+
+                `;
+            tableBody.appendChild(parentRow);
+
+            if (task.subtasks && task.subtasks.length > 0) {
+                task.subtasks.forEach((subtask, index) => {
+                    // Generate a unique subtask ID based on the parent task ID and index
+                    subtask.id = generateSubtaskID(task.id, index + 1);
+
+                    const subtaskRow = document.createElement('tr');
+                    subtaskRow.className = 'subtask-row'; // Hide subtask row by default
+                    subtaskRow.innerHTML = `
+                            <td>${subtask.id}</td>
+                            <td>${subtask.taskName}</td>
+                            <td>${subtask.startDate}</td>
+                            <td>${subtask.endDate}</td>
+                            <td>${subtask.status}</td>
+                        `;
+                    tableBody.appendChild(subtaskRow);
+                });
+            }
+
+            // Add a click event listener to the parent task row to toggle subtask visibility
+            parentRow.addEventListener('click', () => {
+                const subtaskRows = document.querySelectorAll('.subtask-row');
+                subtaskRows.forEach(subtaskRow => {
+                    subtaskRow.style.display = 'none';
+                });
+                const subtasks = parentRow.nextElementSibling; // Get the next row (subtasks)
+                subtasks.style.display = subtasks.style.display === 'none' ? 'table-row' : 'none';
+            });
+        });
+    }
+
+    // Initial population of the table
+    populateTable(tasks);
+</script>
+</body>
+</html>
